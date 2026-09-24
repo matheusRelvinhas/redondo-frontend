@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Redondo Stats",
+    "slug": "redondo-frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "redondostats",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0F10"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "site.redondostats.app"
+    },
+    "android": {
+      "package": "site.redondostats.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F10",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
