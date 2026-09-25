@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import { Screen, PageTitle } from "@/components/screen";
+import { Seo } from "@/components/seo";
+import { homeSeo } from "@/lib/seo";
 import { Panel, StatTile, Segmented, Eyebrow, Chip } from "@/components/ui";
 import { GameList } from "@/components/game-card";
 import { LiveGames } from "@/components/live-games";
@@ -26,6 +28,8 @@ export default function HomeScreen() {
 
   return (
     <Screen>
+      <Seo {...homeSeo()} />
+
       <View className="gap-1">
         <Eyebrow>Previsões da IA</Eyebrow>
         <PageTitle

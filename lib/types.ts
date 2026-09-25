@@ -115,6 +115,33 @@ export interface League {
   start_timestamp: number;
 }
 
+export interface TournamentTeam {
+  slug: string | null;
+  name: string | null;
+  img_url: string | null;
+}
+
+export interface TournamentPrize {
+  place: string | null;
+  teams: TournamentTeam | null;
+}
+
+export interface LeagueStats {
+  id: number;
+  slug: string;
+  name: string;
+  img_url: string | null;
+  status: string | null;
+  prize: number | null;
+  start_date: string | null;
+  start_timestamp: number;
+  tier: string | null;
+  teams: TournamentTeam[] | null;
+  tournament_prizes: TournamentPrize[] | null;
+  created_at: number | null;
+  updated_at: number | null;
+}
+
 export interface Team {
   slug: string;
   name: string;

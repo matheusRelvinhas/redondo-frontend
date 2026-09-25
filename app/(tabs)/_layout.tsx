@@ -12,6 +12,7 @@ export default function TabsLayout() {
 
   const tabs = (
     <Tabs
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: c.primary,
@@ -70,6 +71,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="game/[slug]" options={{ href: null }} />
+      <Tabs.Screen name="league/[slug]" options={{ href: null }} />
+      <Tabs.Screen name="player/[slug]" options={{ href: null }} />
+      <Tabs.Screen name="team/[slug]" options={{ href: null }} />
     </Tabs>
   );
 

@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Screen, PageTitle } from "@/components/screen";
+import { Seo } from "@/components/seo";
+import { gamesSeo } from "@/lib/seo";
 import { Panel, Segmented, Chip } from "@/components/ui";
 import { GameList } from "@/components/game-card";
 import { LiveGames } from "@/components/live-games";
@@ -73,6 +75,8 @@ export default function GamesScreen() {
 
   return (
     <Screen onEndReached={hasMore ? showMore : undefined}>
+      <Seo {...gamesSeo()} />
+
       <PageTitle title="Jogos" subtitle="Tier S e A" />
 
       <View className="flex-row gap-2">

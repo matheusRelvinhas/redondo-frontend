@@ -58,7 +58,7 @@ export function GameCard({
   return (
     <Link href={`/game/${game.slug}`} asChild>
       <Pressable
-        className={`gap-1.5 px-3.5 py-3 active:bg-primary/10 ${first ? "" : "border-t border-line"}`}
+        className={`gap-1.5 px-3.5 py-3 transition-colors duration-300 hover:bg-primary/10 active:bg-primary/10 ${first ? "" : "border-t border-line"}`}
       >
         <View className="flex-row items-center gap-1.5">
           <LeagueImage imgUrl={game.league_img_url} size={14} />

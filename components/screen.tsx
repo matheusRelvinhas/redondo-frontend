@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
-import { router } from "expo-router";
+import { router, usePathname, type Href } from "expo-router";
 import { LogoImage } from "./logo";
 import { AdSlot, AD_COLUMN_WIDTH } from "./ad-slot";
 
@@ -26,9 +26,25 @@ export const useIsDesktop = () => {
   return Platform.OS === "web" && width >= 1024;
 };
 
-/** Volta na pilha; se não houver histórico (link direto), vai para /games. */
+const visited: string[] = [];
+const HISTORY_LIMIT = 20;
+
+function useTrackPath() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (visited[visited.length - 1] === pathname) return;
+    visited.push(pathname);
+    if (visited.length > HISTORY_LIMIT) visited.shift();
+  }, [pathname]);
+}
+
+/** Volta para a última página visitada; sem histórico, vai para /games. */
 const goBack = () => {
-  if (router.canGoBack()) router.back();
+  visited.pop(); // a página atual
+  const previous = visited.pop();
+  if (previous) router.replace(previous as Href);
+  else if (router.canGoBack()) router.back();
   else router.replace("/games");
 };
 
@@ -47,7 +63,6 @@ export function BackButton() {
   );
 }
 
-/** Cabeçalho do mobile — no desktop quem identifica a marca é a sidebar. */
 function AppBar({ back }: { back?: boolean }) {
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -88,11 +103,12 @@ export function Screen({
 }: {
   children: ReactNode;
   back?: boolean;
-  /** Dispara perto do fim do scroll — usado para o scroll infinito. */
   onEndReached?: () => void;
 }) {
   const isDesktop = useIsDesktop();
   const insets = useSafeAreaInsets();
+
+  useTrackPath();
 
   const handleScroll = onEndReached
     ? ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {

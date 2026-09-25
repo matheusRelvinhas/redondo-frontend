@@ -25,7 +25,7 @@ export function Sidebar() {
   return (
     <View className="h-full w-[232px] border-r border-line bg-surface px-3.5 py-4">
       <Link href="/" asChild>
-        <Pressable className="mb-4 flex-row items-center gap-2.5 px-2 pb-4">
+        <Pressable className="mb-4 flex-row items-center gap-2.5 border-b border-line px-2 pb-4">
           <LogoImage size={34} />
           <View>
             <Text className="font-display text-sm font-bold tracking-[1.2px] text-ink">REDONDO STATS</Text>

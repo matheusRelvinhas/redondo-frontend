@@ -1,4 +1,4 @@
-import { View, Text, Pressable, type ViewProps } from "react-native";
+import { View, Text, Pressable, ScrollView, type ViewProps } from "react-native";
 import type { ReactNode } from "react";
 
 
@@ -99,6 +99,104 @@ export function Segmented<T extends string>({
           </Pressable>
         );
       })}
+    </View>
+  );
+}
+
+
+export function PillTabs<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { label: string; value: T }[];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ width: "100%" }}>
+      <View className="flex-row gap-1.5">
+        {options.map((opt) => {
+          const active = opt.value === value;
+          return (
+            <Pressable
+              key={opt.value}
+              onPress={() => onChange(opt.value)}
+              className={`h-8 justify-center rounded-[10px] border px-3 ${
+                active ? "border-primary bg-primary" : "border-line bg-surface"
+              }`}
+            >
+              <Text
+                className={`text-[12px] font-bold ${
+                  active ? "text-primary-ink" : "text-ink-2"
+                }`}
+              >
+                {opt.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
+
+
+export function FormDots({ results, max = 10 }: { results: boolean[]; max?: number }) {
+  if (!results.length) return null;
+
+  return (
+    <View className="flex-row items-center gap-2 px-0.5">
+      <Text className="text-[10px] font-semibold text-ink-3">Últimos resultados</Text>
+      <View className="flex-row items-center gap-1">
+        {results.slice(0, max).map((won, i) => (
+          <View
+            key={i}
+            className={`h-2.5 w-2.5 rounded-full ${won ? "bg-success" : "bg-danger"}`}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+
+export function RecordStrip({
+  total,
+  wins,
+  losses,
+  performance,
+  label,
+}: {
+  total: number;
+  wins: number;
+  losses: number;
+  performance: number;
+  label: string;
+}) {
+  const tone =
+    performance >= 70 ? "text-success" : performance < 35 ? "text-danger" : "text-tr";
+
+  const items = [
+    { label, value: String(total), className: "text-ink" },
+    { label: "Vitórias", value: String(wins), className: "text-success" },
+    { label: "Derrotas", value: String(losses), className: "text-danger" },
+    { label: "Aproveitamento", value: `${performance}%`, className: tone },
+  ];
+
+  return (
+    <View className="flex-row flex-wrap gap-1.5">
+      {items.map((item) => (
+        <View
+          key={item.label}
+          className="min-w-[88px] flex-1 gap-0.5 rounded-lg bg-surface-2 px-2.5 py-1.5"
+        >
+          <Text className="text-[10px] font-semibold text-ink-3">{item.label}</Text>
+          <Text className={`font-display text-sm font-bold ${item.className}`}>
+            {item.value}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }

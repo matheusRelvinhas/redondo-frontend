@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { View, Text, ImageBackground, Pressable, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Screen } from "@/components/screen";
+import { Seo } from "@/components/seo";
+import { gameSeo } from "@/lib/seo";
 import { Panel, Chip, Eyebrow, PanelHeader, Segmented } from "@/components/ui";
 import { TeamImage, LeagueImage, PlayerImage, mapImage } from "@/components/entity-image";
 import { LiveDot } from "@/components/live-dot";
@@ -10,29 +12,36 @@ import { GameSide } from "@/components/game-side";
 import { PrimaryGlow } from "@/components/primary-glow";
 import { AiAnalysis } from "@/components/ai-analysis";
 import { formatFullDate, formatHour, isLiveGame, mapName } from "@/lib/format";
+import { RATING_MAX, ratingColor, ratingPercent, toRating } from "@/lib/rating";
 import { useGame } from "@/lib/games";
 import { useAiAnalysis } from "@/lib/ai-analysis";
 import { useAppContext } from "@/context/context";
 import type { GamePlayerStats, GameStats } from "@/lib/types";
 
+function EntityLink({
+  pathname,
+  slug,
+  className = "",
+  children,
+}: {
+  pathname: "/league/[slug]" | "/team/[slug]" | "/player/[slug]";
+  slug?: string | null;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (!slug) return <View className={className}>{children}</View>;
+
+  return (
+    <Link href={{ pathname, params: { slug } }} asChild>
+      <Pressable className={`${className} active:opacity-60`}>{children}</Pressable>
+    </Link>
+  );
+}
+
 const deathsOf = (p: GamePlayerStats) => p.death ?? p.deaths ?? 0;
 
 const multikillsOf = (p: GamePlayerStats) =>
   p.multikills ? Object.values(p.multikills).reduce((sum, n) => sum + n, 0) : 0;
-
-const RATING_API_MAX = 10;
-const RATING_MAX = 5;
-
-const toRating = (apiRating: number) => (apiRating * RATING_MAX) / RATING_API_MAX;
-
-const RATING_GREEN = 3.5;
-const RATING_FLOOR = 1.5;
-
-function ratingColor(rating: number, dark: boolean) {
-  const t = Math.max(0, Math.min(1, (rating - RATING_FLOOR) / (RATING_GREEN - RATING_FLOOR)));
-  const hue = Math.round(t * 120); // 0 = vermelho, 120 = verde
-  return `hsl(${hue}, ${dark ? 70 : 65}%, ${dark ? 58 : 42}%)`;
-}
 
 type ColumnKey = "kills" | "death" | "assists" | "adr" | "trades" | "multikills" | "clutches";
 
@@ -127,10 +136,14 @@ function Scoreboard({
     <Panel className="overflow-hidden">
       <PanelHeader
         title={
-          <View className="flex-row items-center gap-2">
+          <EntityLink
+            pathname="/team/[slug]"
+            slug={teamSlug}
+            className="flex-row items-center gap-2"
+          >
             <TeamImage imgUrl={imgUrl} size={24} />
             <Text className="text-[13.5px] font-extrabold text-ink">{teamName}</Text>
-          </View>
+          </EntityLink>
         }
         right={
           <Text className={`text-[11px] font-bold ${won ? "text-success" : "text-ink-2"}`}>
@@ -161,7 +174,11 @@ function Scoreboard({
           key={p.slug ?? p.name}
           className={`flex-row items-center px-3.5 py-1.5 ${i ? "border-t border-line" : ""}`}
         >
-          <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          <EntityLink
+            pathname="/player/[slug]"
+            slug={p.slug}
+            className="min-w-0 flex-1 flex-row items-center gap-2"
+          >
             <PlayerImage imgUrl={`${p.slug}.webp`} size={30} />
             <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
               <Text numberOfLines={1} className="font-bold text-ink">
@@ -169,7 +186,7 @@ function Scoreboard({
               </Text>
               <Text className="text-[8.5px] font-extrabold text-ink-3">{p.country_code}</Text>
             </View>
-          </View>
+          </EntityLink>
           {columns.map((c) => (
             <View key={c.key} className={`${c.width} items-center`}>
               {cell(p, c.key)}
@@ -184,7 +201,7 @@ function Scoreboard({
               <View
                 className="h-full rounded-sm"
                 style={{
-                  width: `${Math.min(100, (toRating(p.player_rating) / RATING_MAX) * 100)}%`,
+                  width: `${ratingPercent(toRating(p.player_rating))}%`,
                   backgroundColor: ratingColor(toRating(p.player_rating), dark),
                 }}
               />
@@ -283,6 +300,7 @@ export default function GameScreen() {
   if (loading) {
     return (
       <Screen back>
+        <Seo {...gameSeo(slug)} />
         <Panel className="items-center justify-center p-8">
           <Text className="text-sm text-ink-3">Carregando…</Text>
         </Panel>
@@ -293,6 +311,7 @@ export default function GameScreen() {
   if (!game || notFound) {
     return (
       <Screen back>
+        <Seo {...gameSeo(slug)} />
         <Panel className="items-center justify-center p-8">
           <Text className="text-sm text-ink-2">Partida não encontrada</Text>
         </Panel>
@@ -329,10 +348,16 @@ export default function GameScreen() {
 
   return (
     <Screen back>
+      <Seo {...gameSeo(slug)} />
+
       <Panel className="relative gap-3.5 overflow-hidden p-4">
         <PrimaryGlow />
         <View className="flex-row items-center justify-between gap-2">
-          <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          <EntityLink
+            pathname="/league/[slug]"
+            slug={game.league_slug}
+            className="min-w-0 flex-1 flex-row items-center gap-2"
+          >
             <LeagueImage imgUrl={game.league_img_url} size={22} />
             <View className="min-w-0 flex-1">
               <Text numberOfLines={1} className="text-[12.5px] font-bold text-ink">
@@ -344,7 +369,7 @@ export default function GameScreen() {
                 </Text>
               ) : null}
             </View>
-          </View>
+          </EntityLink>
           {live ? (
             <View className="h-[22px] flex-row items-center gap-1.5 rounded-[7px] bg-danger/15 px-2">
               <LiveDot size={7} />
@@ -356,7 +381,11 @@ export default function GameScreen() {
         </View>
 
         <View className="flex-row items-center justify-center gap-3">
-          <View className="min-w-0 flex-1 items-center gap-2">
+          <EntityLink
+            pathname="/team/[slug]"
+            slug={game.team1_slug}
+            className="min-w-0 flex-1 items-center gap-2"
+          >
             <TeamImage imgUrl={game.team1_img_url} size={52} />
             <Text
               numberOfLines={1}
@@ -364,7 +393,7 @@ export default function GameScreen() {
             >
               {game.team1_name}
             </Text>
-          </View>
+          </EntityLink>
 
           <View className="flex-row items-center gap-2.5">
             <Text className={`font-display text-[40px] font-bold ${team1Won ? "text-ink" : "text-ink-2"}`}>
@@ -376,7 +405,11 @@ export default function GameScreen() {
             </Text>
           </View>
 
-          <View className="min-w-0 flex-1 items-center gap-2">
+          <EntityLink
+            pathname="/team/[slug]"
+            slug={game.team2_slug}
+            className="min-w-0 flex-1 items-center gap-2"
+          >
             <TeamImage imgUrl={game.team2_img_url} size={52} />
             <Text
               numberOfLines={1}
@@ -384,7 +417,7 @@ export default function GameScreen() {
             >
               {game.team2_name}
             </Text>
-          </View>
+          </EntityLink>
         </View>
 
         <View className="flex-row flex-wrap justify-center gap-1.5">
